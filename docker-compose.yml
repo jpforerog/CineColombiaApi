@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: base_datos
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: juan
+      MYSQL_PASSWORD: MYSQL_PASSWORD
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  api1:
+    build: .
+    container_name: fastapi_app1
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_USER: juan
+      DB_PASS: MYSQL_PASSWORD
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: mydb
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/code   # 👈 cada API puede tener su propio código
+
+  api2:
+    build: .
+    container_name: fastapi_app2
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_USER: juan
+      DB_PASS: MYSQL_PASSWORD
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: mydb
+    ports:
+      - "8001:8000"    # 👈 dentro del contenedor sigue en 8000, pero afuera es 8001
+    volumes:
+      - ./app:/code   
+
+volumes:
+  db_data:
