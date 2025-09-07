@@ -3,6 +3,8 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.orm import declarative_base
 
+
+
 DB_USER = os.getenv("DB_USER", "juan")
 DB_PASS = os.getenv("DB_PASS", "MYSQL_PASSWORD")
 DB_HOST = os.getenv("DB_HOST", "db")  # 👈 importante: host = db
