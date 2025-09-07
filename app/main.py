@@ -1,12 +1,33 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import Base, engine, async_session
 from app.models import Pelicula
 from app.schemas import PeliculaCreate, PeliculaRead, PeliculaUpdate
+from app import monitoring
+from prometheus_fastapi_instrumentator import Instrumentator
+import time
 
 app = FastAPI()
+# 👇 Middleware global para contar y medir requests
+@app.middleware("http")
+async def add_metrics(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
 
+    monitoring.REQUEST_COUNT.labels(
+        request.method, request.url.path, response.status_code
+    ).inc()
+
+    monitoring.REQUEST_LATENCY.labels(request.url.path).observe(process_time)
+
+    return response
+
+# 👇 Incluimos el router con el endpoint /metrics
+app.include_router(monitoring.router)
+
+Instrumentator().instrument(app).expose(app)
 # 🔹 Crear las tablas si no existen
 @app.on_event("startup")
 async def startup():
@@ -69,3 +90,5 @@ async def delete_pelicula(pelicula_id: int, session: AsyncSession = Depends(get_
     await session.delete(pelicula)
     await session.commit()
     return {"message": "Pelicula eliminada"}
+
+

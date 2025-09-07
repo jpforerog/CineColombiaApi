@@ -1,0 +1,20 @@
+groups:
+  - name: fastapi_alerts
+    rules:
+      - alert: FastAPIInstanceDown
+        expr: up{job="fastapi"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "FastAPI está caído"
+          description: "El servicio de FastAPI no responde desde hace 1 minuto."
+
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Latencia alta en FastAPI"
+          description: "El 95% de las peticiones están tardando más de 2s en los últimos 5 minutos."
