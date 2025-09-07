@@ -2,29 +2,32 @@ version: "3.9"
 
 services:
   db:
-    image: mysql:8.0
+    image: mysql:8
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: password123
-      MYSQL_DATABASE: peliculas_db
-      MYSQL_USER: test_user
-      MYSQL_PASSWORD: test_pass
+      MYSQL_DATABASE: mydb
     ports:
-      - "3306:3306"
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
-    build:
-      context: ../..     # desde tests/integracion -> sube a la raíz del repo
-      dockerfile: Dockerfile
+    build: ../..
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    volumes:
+      - ../..:/code
     environment:
+      DB_USER: root
+      DB_PASS: password123
       DB_HOST: db
-      DB_PORT: '3306'
-      DB_USER: test_user
-      DB_PASS: test_pass
-      DB_NAME: peliculas_db
+      DB_PORT: 3306
+      DB_NAME: mydb
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - "8002:8000"
-    # Espera a la DB y luego arranca uvicorn; ajusta el import/path según tu app
-    command: >
-      sh -c "python tests/integracion/wait_for_db.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"

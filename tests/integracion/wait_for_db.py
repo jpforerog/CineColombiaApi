@@ -1,24 +1,22 @@
-import os
 import time
+import mysql.connector
+from mysql.connector import Error
 
-def wait_db():
-    host = os.getenv("DB_HOST", "db")
-    port = int(os.getenv("DB_PORT", 3306))
-    user = os.getenv("DB_USER", "test_user")
-    password = os.getenv("DB_PASS", "test_pass")
-    db = os.getenv("DB_NAME", "peliculas_db")
-
-    for i in range(30):
-        try:
-            import pymysql
-            conn = pymysql.connect(host=host, port=port, user=user, password=password, database=db)
-            conn.close()
-            print("DB lista")
-            return
-        except Exception as e:
-            print(f"Intento {i+1}: DB no lista ({e}), esperando 2s...")
-            time.sleep(2)
-    raise RuntimeError("No se pudo conectar a la base de datos en el tiempo esperado")
+DB_CONFIG = {
+    "host": "db",
+    "user": "root",
+    "password": "password123",
+    "database": "mydb"
+}
 
 if __name__ == "__main__":
-    wait_db()
+    while True:
+        try:
+            conn = mysql.connector.connect(**DB_CONFIG)
+            if conn.is_connected():
+                print("✅ DB lista!")
+                conn.close()
+                break
+        except Error as e:
+            print("⏳ Esperando DB...")
+        time.sleep(2)

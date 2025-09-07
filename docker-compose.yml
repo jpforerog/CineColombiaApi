@@ -30,7 +30,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./app:/code   # 👈 cada API puede tener su propio código
+      - ./app:/code/app   # 👈 cada API puede tener su propio código
 
   api2:
     build: .
@@ -47,7 +47,7 @@ services:
     ports:
       - "8001:8000"    # 👈 dentro del contenedor sigue en 8000, pero afuera es 8001
     volumes:
-      - ./app:/code   
+      - ./app:/code/app   
 
 volumes:
   db_data:

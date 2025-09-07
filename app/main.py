@@ -1,9 +1,9 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from database import Base, engine, async_session
-from models import Pelicula
-from schemas import PeliculaCreate, PeliculaRead, PeliculaUpdate
+from app.database import Base, engine, async_session
+from app.models import Pelicula
+from app.schemas import PeliculaCreate, PeliculaRead, PeliculaUpdate
 
 app = FastAPI()
 
