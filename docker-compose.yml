@@ -16,7 +16,7 @@ services:
       - db_data:/var/lib/mysql
 
   api1:
-    build: .
+    image: forteater/cinecolombia-api:latest
     container_name: fastapi_app1
     restart: always
     depends_on:
@@ -33,7 +33,7 @@ services:
       - ./app:/code/app   # 👈 cada API puede tener su propio código
 
   api2:
-    build: .
+    image: forteater/cinecolombia-api:latest
     container_name: fastapi_app2
     restart: always
     depends_on:
